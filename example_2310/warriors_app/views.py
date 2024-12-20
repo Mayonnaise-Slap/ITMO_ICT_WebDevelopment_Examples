@@ -1,7 +1,7 @@
-from django.db import transaction
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
+from django.views.decorators.http import require_http_methods
 from django_filters import rest_framework as filters
 from rest_framework import filters as standart_filters
 from rest_framework import generics, viewsets
@@ -13,6 +13,23 @@ from rest_framework.views import APIView
 
 from .forms import AddWarrior
 from .serializers import *
+
+
+@require_http_methods(["GET"])
+def get_warrior_data(request, id):
+    warrior = get_object_or_404(Warrior, id=id)
+    return render(request, 'warrior.html', {'warrior': warrior})
+
+
+@require_http_methods(["GET", "POST"])
+def add_warrior(request):
+    form = AddWarrior(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect(f'/warrior/{form.instance.id}/')
+
+    return render(request, 'add_warrior.html', {'form': form})
 
 
 class GoodsListViewWithApiView(APIView):
@@ -72,14 +89,27 @@ class GoodsListGenericView(generics.ListCreateAPIView):
     queryset = Goods.objects.all()
     # Сериализация
     serializer_class = GoodsSerializer
-    # Пагинация
-    pagination_class = CustomPagination
+
+    # # Пагинация
+    # pagination_class = CustomPagination
 
     # Фильтр / сортировка, поиск
-    # filter_backends = [standart_filters.SearchFilter, standart_filters.OrderingFilter, filters.DjangoFilterBackend]
-    # ordering_fields = ['created']
+    #filter_backends = [standart_filters.SearchFilter, standart_filters.OrderingFilter, filters.DjangoFilterBackend]
+    #ordering_fields = ['created']
     # search_fields = ['name', 'category']
-    # filterset_class = ProductFilter
+    filterset_class = ProductFilter
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            print('ddddddddddd')
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class GoodsCreateGenericView(generics.CreateAPIView):
@@ -130,9 +160,9 @@ class GoodsListViewSetView(viewsets.ModelViewSet):
     # Пагинация
     # pagination_class = StandardResultsSetPagination
     # Фильтр / сортировка, поиск
-    filter_backends = [standart_filters.SearchFilter, standart_filters.OrderingFilter, filters.DjangoFilterBackend]
-    ordering_fields = ['created']
-    search_fields = ['name', 'category']
+    #  = [standart_filters.SearchFilter, standart_filters.OrderingFilter, filters.DjangoFilterBackend]
+    # ordering_fields = ['created']
+    # search_fields = ['name', 'category']
     filterset_class = ProductFilter
 
     def list(self, request, *args, **kwargs):
@@ -260,25 +290,6 @@ class WarriorDetailsView(generics.RetrieveAPIView):
     serializer_class = WarriorSerializer
 
 
-def get_warrior_data(request, id):  # отдельная страничка владельца функционально
-    try:
-        warrior = Warrior.objects.get(id=id)
-    except Warrior.DoesNotExist:
-        raise Http404("owner does not exist")
-    return render(request, 'warrior.html', {'warrior': warrior})
-
-
-def add_warrior(request):  # ввод владельца функционально
-    context = {}
-
-    form = AddWarrior(request.POST or None)
-
-    if form.is_valid():
-        form.save()
-    context['form'] = form
-    return render(request, 'add_warrior.html', context)
-
-
 class ProfessionCreateAPIView(generics.CreateAPIView):
     serializer_class = ProfessionCreateSerializer
     queryset = Profession.objects.all()
@@ -331,3 +342,17 @@ def create_prof_and_connect_to_warrior(request):
         warrior[0].save()
         return Response(status=201, data={"message": "objects created"})
     return Response(status=404, data={"message": "Warrior not found"})
+
+
+@api_view(['GET', 'POST'])
+def warrior_list(request):
+    if request.method == 'POST':
+        serializer = WarriorSerializer(data=request.data)
+        if serializer.is_valid():
+            # Если полученные данные валидны — выполняем работу
+            # Например, сохраняем данные в базу через save() (как при работе с формами)
+            serializer.save()
+            # Возвращаем JSON с полученными данными и статус-код 200
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        # Если данные не прошли валидацию — возвращаем сообщение об ошибке:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

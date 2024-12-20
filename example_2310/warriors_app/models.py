@@ -71,13 +71,15 @@ class Warrior(models.Model):
                                    related_name='warrior_skils', blank=True),
     profession = models.ForeignKey('Profession', on_delete=models.CASCADE, verbose_name='Профессия',
                                    blank=True, null=True)
+    new_race = models.CharField(max_length=1, choices=race_types, verbose_name='Новая Расса', blank=True, null=True)
+    new_race_2 = models.CharField(max_length=1, choices=race_types, verbose_name='Новая Расса 2', blank=True, null=True)
 
     def __str__(self):
         return self.name + ' / ' + str(self.id)
 
     def print_name(self):
         """
-        sdsds
+        Метод, выводящий имя
         """
         print(self.name)
 

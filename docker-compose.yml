@@ -20,6 +20,8 @@ services:
       - 8890:8000
     volumes:
       - .:/project
-    command: bash -c "pip install django-extensions && pip install django-filter && pip install django-environ && python ./example_2310/manage.py runserver 0.0.0.0:8890"
+    command: bash -c "pip install python-dotenv && python ./example_2310/manage.py runserver 0.0.0.0:8890"
     depends_on:
       - db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}

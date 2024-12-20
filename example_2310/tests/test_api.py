@@ -5,9 +5,7 @@ from warriors_app.models import Warrior
 from collections import OrderedDict
 
 
-
 class WarriorsTests(APITestCase):
-
 
     @classmethod
     def setUpTestData(self): # Метод для создания тестовых данных
