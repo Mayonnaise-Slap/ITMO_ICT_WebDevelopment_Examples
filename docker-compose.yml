@@ -1,27 +1,13 @@
-version: '3.3'
+version: "3.3"
 
 services:
-  db:
-    image: postgres
-    ports:
-      - "5437:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=analytics_db
-    volumes:
-      - ./dbs/postgres-data:/var/lib/postgresql
   backend:
     build:
       context: .
       dockerfile: ./Dockerfile
     restart: on-failure
     ports:
-      - 8890:8000
+      - "8000:8000"
     volumes:
       - .:/project
-    command: bash -c "pip install python-dotenv && python ./example_2310/manage.py runserver 0.0.0.0:8890"
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
+    command: bash -c "python ./example_2310/manage.py runserver 0.0.0.0:8000"

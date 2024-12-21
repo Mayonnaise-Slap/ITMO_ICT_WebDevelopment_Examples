@@ -11,15 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
-import environ
 
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# env = environ.Env()
-# environ.Env.read_env()
 
 
 # Quick-start development settings - unsuitable for production
@@ -30,9 +25,6 @@ SECRET_KEY = '@$1o6r6#e=9s5m%2$zxtu72_7prw7@w4f%oi+!i2(f$zhca)&^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -93,7 +85,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db2.sqlite4',
     }
 }
-# DATABASES = {'default': os.getenv('DATABASE_URL')}
 
 
 # Password validation
@@ -133,6 +124,7 @@ USE_L10N = True
 USE_TZ = True
 
 CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ['0.0.0.0']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
