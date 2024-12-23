@@ -7,7 +7,7 @@ services:
       dockerfile: ./Dockerfile
     restart: on-failure
     ports:
-      - "8000:8000"
+      - "8890:8000"
     volumes:
       - .:/project
     command: bash -c "python ./example_2310/manage.py runserver 0.0.0.0:8000"
