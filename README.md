@@ -7,5 +7,5 @@
 docker-compose up --build
 ```
 
-api работает на localhost:8000
+api работает на localhost:8890
 fyi, build на моем устройстве и интернете занимает 4.5 минуты
